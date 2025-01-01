@@ -239,14 +239,23 @@ class KnowledgeBasesForAmazonBedrock:
             self.s3_client.head_bucket(Bucket=bucket_name)
             print(f"Bucket {bucket_name} already exists - retrieving it!")
         except ClientError as e:
-            print(f"Creating bucket {bucket_name}")
-            if self.region_name == "us-east-1":
-                self.s3_client.create_bucket(Bucket=bucket_name)
+            error_code = e.response['Error']['Code']
+            if error_code == '404':
+                print(f"Creating bucket {bucket_name}")
+                try:
+                    if self.region_name == "us-east-1":
+                        self.s3_client.create_bucket(Bucket=bucket_name)
+                    else:
+                        self.s3_client.create_bucket(
+                            Bucket=bucket_name,
+                            CreateBucketConfiguration={"LocationConstraint": self.region_name},
+                        )
+                    print(f"Bucket {bucket_name} created successfully.")
+                except ClientError as create_error:
+                    print(f"Error creating bucket: {create_error}")
+                    raise RuntimeError(f"Failed to create bucket {bucket_name}")
             else:
-                self.s3_client.create_bucket(
-                    Bucket=bucket_name,
-                    CreateBucketConfiguration={"LocationConstraint": self.region_name},
-                )
+                print(f"Error checking bucket: {e}")
 
     def create_bedrock_kb_execution_role(
         self,

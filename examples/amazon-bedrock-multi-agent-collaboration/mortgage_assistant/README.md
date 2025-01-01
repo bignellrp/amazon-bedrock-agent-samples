@@ -23,7 +23,7 @@ not mapping cleanly to a single collaborator. For example:
 ```bash
 git clone https://github.com/awslabs/amazon-bedrock-agent-samples
 
-cd amazon-bedrock-agent-samples
+cd amazon-bedrock-agent-samples/examples/amazon-bedrock-multi-agent-collaboration/mortgage_assistant
 
 python3 -m venv .venv
 
@@ -34,26 +34,32 @@ pip3 install -r src/requirements.txt
 
 ## Usage & Sample Prompts
 
+Request model access in Bedrock for:
+- Titan Text Embeddings V2
+- Claude 3.5 Haiku
+- Claude 3.5 Sonnet v2
+- Claude 3.5 Sonnet
+- Claude 3 Sonnet
+- Claude 3 Haiku
+
+
 1. Deploy Amazon Bedrock Agents
 
 ```bash
-python3 examples/amazon-bedrock-multi-agent-collaboration/mortgage_assistant/main.py \
---recreate_agents "true"
+python3 main.py --recreate_agents "true"
 ```
 
 2. Invoke
 
 ```bash
-python3 examples/amazon-bedrock-multi-agent-collaboration/mortgage_assistant/main.py \
---recreate_agents "false" \
---team_name "New England Patriots"
+python3 main.py --recreate_agents "false"
 ```
 
+## Not yet implemented
 3. Cleanup
 
 ```bash
-python3 examples/amazon-bedrock-multi-agent-collaboration/mortgage_assistant/main.py \
---clean_up "true"
+python3 main.py --clean_up "true"
 ```
 
 ## License

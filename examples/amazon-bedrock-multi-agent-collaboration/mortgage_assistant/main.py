@@ -22,6 +22,8 @@ import logging
 import uuid
 import uuid
 
+import questionary
+
 kb_helper = KnowledgeBasesForAmazonBedrock()
 
 s3_client = boto3.client('s3')
@@ -46,7 +48,9 @@ def main(args):
         agents_helper.delete_agent("mortgages_assistant", verbose=True)
         # kb_helper.delete_kb("general-mortgage-kb", delete_s3_bucket=False)
 
-    bucket_name = 'roymark-bedrock2-us-west-2'
+    unique_suffix = str(uuid.uuid4()).replace('-', '')[:15]
+    #bucket_name = f'mortgages-assistant-{unique_suffix}'
+    bucket_name = "mortgages-assistant-7e17defb3ccd442"
 
     print("creating general KB")
     kb_name = "general-mortgage-kb"
@@ -233,22 +237,53 @@ History is returned as a list of objects, where each object contains the date an
                                 verbose=False)
     
 
+    # if args.recreate_agents == "false":
+    #     print("\n\nInvoking supervisor agent...\n\n")
+
+    #     session_id = str(uuid.uuid4())
+
+    #     requests = ["when’s my next payment due?",
+    #                 "what’s my balance after that payment, and what rate am I paying?",
+    #                 "why do so many people choose a 30-year mortgage??",
+    #                 "did you receive my employment verification doc yet? i sent it last week",
+    #                 "i’m getting ready to lock in on a rate. what have the rates looked like in last couple weeks?",
+    #                 # "great. if i use the highest of those rates for $500K for 15 years, what’s my payment?"
+    #     ]
+
+    #     for request in requests:
+    #         print(f"\n\nRequest: {request}\n\n")
+    #         result = mortgages_assistant.invoke(request, session_id=session_id, 
+    #                                             enable_trace=True, trace_level=args.trace_level)
+    #         print(result)
+
     if args.recreate_agents == "false":
         print("\n\nInvoking supervisor agent...\n\n")
 
         session_id = str(uuid.uuid4())
 
-        requests = ["when’s my next payment due?",
-                    "what’s my balance after that payment, and what rate am I paying?",
-                    "why do so many people choose a 30-year mortgage??",
-                    "did you receive my employment verification doc yet? i sent it last week",
-                    "i’m getting ready to lock in on a rate. what have the rates looked like in last couple weeks?",
-                    # "great. if i use the highest of those rates for $500K for 15 years, what’s my payment?"
+        suggestions = [
+            "1. When’s my next payment due?",
+            "2. What’s my balance after that payment, and what rate am I paying?",
+            "3. Why do so many people choose a 30-year mortgage?",
+            "4. Did you receive my employment verification doc yet? i sent it last week",
+            "5. I’m getting ready to lock in on a rate. what have the rates looked like in last couple weeks?",
         ]
 
-        for request in requests:
-            print(f"\n\nRequest: {request}\n\n")
-            result = mortgages_assistant.invoke(request, session_id=session_id, 
+        while True:
+            user_input = questionary.select(
+                "Enter your request (or type 'exit' to quit):",
+                choices=suggestions + ["exit"]
+            ).ask()
+
+            if not user_input or user_input.strip() == '':
+                print("The question cannot be empty. Please enter a valid request.")
+                continue
+
+            if user_input == 'exit':
+                break
+
+            print(f"\n\nRequest: {user_input}\n\n")
+            result = mortgages_assistant.invoke(user_input, session_id=session_id, 
                                                 enable_trace=True, trace_level=args.trace_level)
             print(result)
 

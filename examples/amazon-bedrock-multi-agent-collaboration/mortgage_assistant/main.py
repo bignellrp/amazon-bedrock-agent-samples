@@ -20,8 +20,6 @@ from src.utils.knowledge_base_helper import KnowledgeBasesForAmazonBedrock
 
 import logging
 import uuid
-import uuid
-
 import questionary
 
 kb_helper = KnowledgeBasesForAmazonBedrock()
@@ -48,7 +46,7 @@ def main(args):
         agents_helper.delete_agent("mortgages_assistant", verbose=True)
         # kb_helper.delete_kb("general-mortgage-kb", delete_s3_bucket=False)
 
-    unique_suffix = str(uuid.uuid4()).replace('-', '')[:15]
+    unique_suffix = str(uuid.uuid1()).replace('-', '')[:15]
     #bucket_name = f'mortgages-assistant-{unique_suffix}'
     bucket_name = "mortgages-assistant-7e17defb3ccd442"
 
